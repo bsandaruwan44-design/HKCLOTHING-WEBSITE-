@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HK CLOTHING - Inventory</title>
+    <script>
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="bg-slate-50 min-h-screen text-slate-800">
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar"
+            class="w-64 glass-morphism border-r border-slate-200 hidden md:flex flex-col sidebar-mobile">
+            <div class="p-6 flex justify-between items-center">
+                <h1 class="text-xl font-bold gradient-text flex flex-col leading-tight">
+                    <span>HK CLOTHING</span>
+                    <span class="text-xs opacity-75 text-slate-500">DENIYAYA</span>
+                </h1>
+                <button class="md:hidden" id="close-sidebar"><i data-lucide="x"></i></button>
+            </div>
+
+            <nav class="flex-1 px-4 space-y-2 mt-4">
+                <a href="index.html"
+                    class="sidebar-link flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                    <span class="font-medium">POS Terminal</span>
+                </a>
+                <a href="inventory.html" class="sidebar-link active flex items-center gap-3 p-3 rounded-xl">
+                    <i data-lucide="box" class="w-5 h-5"></i>
+                    <span class="font-medium">Inventory</span>
+                </a>
+                <a href="reports.html"
+                    class="sidebar-link flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                    <span class="font-medium">Reports</span>
+                </a>
+                <a href="settings.html"
+                    class="sidebar-link flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                    <span class="font-medium">Settings</span>
+                </a>
+            </nav>
+
+            <div id="user-controls" class="p-4 border-t border-slate-200 mt-auto">
+                <div class="flex items-center justify-between px-2">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
+                            AD
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold">Admin</p>
+                            <p class="text-xs text-slate-500">Offline</p>
+                        </div>
+                    </div>
+                    <button id="logout-btn" class="p-2 text-slate-400 hover:text-rose-500 transition-colors"
+                        title="Logout">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-full overflow-hidden">
+            <section class="p-6 flex flex-col h-full overflow-hidden">
+                <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <button id="menu-toggle" class="md:hidden p-2 rounded-lg bg-white border border-slate-200">
+                            <i data-lucide="menu"></i>
+                        </button>
+                        <div>
+                            <h2 class="text-3xl font-black">Inventory Management</h2>
+                            <p class="text-slate-500">Track and manage your baby wear stock</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-3">
+                        <button id="add-production-btn"
+                            class="px-6 py-3 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold shadow-sm hover:bg-slate-50 flex items-center gap-2 transition-all">
+                            <i data-lucide="factory" class="w-5 h-5"></i> In-house Production
+                        </button>
+                        <button id="add-product-btn"
+                            class="px-6 py-3 rounded-xl btn-primary text-white font-bold shadow-lg flex items-center gap-2 transition-all">
+                            <i data-lucide="plus-circle" class="w-5 h-5"></i> New Product
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Stats Summary -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+                        <div
+                            class="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                            <i data-lucide="layout-grid" class="w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-500 font-medium">Total Items</p>
+                            <h3 id="stat-total-items" class="text-2xl font-black">0</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-500">
+                            <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-500 font-medium">Low Stock</p>
+                            <h3 id="stat-low-stock" class="text-2xl font-black text-rose-500">0</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+                        <div
+                            class="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+                            <i data-lucide="banknote" class="w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-500 font-medium">Stock Value (Retail)</p>
+                            <h3 id="stat-stock-value" class="text-2xl font-black">Rs. 0.00</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Table -->
+                <div
+                    class="flex-1 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+                    <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+                        <div class="relative w-72">
+                            <i data-lucide="search"
+                                class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                            <input type="text" id="inventory-search" placeholder="Search inventory..."
+                                class="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-y-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="sticky top-0 bg-slate-50 text-slate-500 uppercase text-xs font-bold">
+                                <tr>
+                                    <th class="px-6 py-4">Product Info</th>
+                                    <th class="px-6 py-4">Wholesale</th>
+                                    <th class="px-6 py-4">Retail</th>
+                                    <th class="px-6 py-4">Stock</th>
+                                    <th class="px-6 py-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-list" class="divide-y divide-slate-50">
+                                <!-- Table rows injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div id="product-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="modal-backdrop absolute inset-0"></div>
+        <div class="bg-white rounded-3xl w-full max-w-2xl relative z-10 shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h3 id="modal-title" class="text-2xl font-bold">Add New Product</h3>
+                <button class="close-modal"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <form id="product-form" class="p-8 grid grid-cols-2 gap-6">
+                <input type="hidden" id="product-id">
+                <div class="col-span-2">
+                    <label class="block text-sm font-semibold mb-2">Product Name</label>
+                    <input type="text" id="p-name" required
+                        class="w-full p-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">SKU / Code</label>
+                    <input type="text" id="p-sku" required
+                        class="w-full p-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Category</label>
+                    <select id="p-category"
+                        class="w-full p-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                        <option value="Onesies">Onesies</option>
+                        <option value="Frocks">Frocks</option>
+                        <option value="Napkins">Napkins</option>
+                        <option value="Baby Suits">Baby Suits</option>
+                        <option value="Accessories">Accessories</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Wholesale Price (Rs)</label>
+                    <input type="number" id="p-wholesale" required step="0.01"
+                        class="w-full p-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Retail Price (Rs)</label>
+                    <input type="number" id="p-retail" required step="0.01"
+                        class="w-full p-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Initial Stock</label>
+                    <input type="number" id="p-stock" required
+                        class="w-full p-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Low Stock Alert Level</label>
+                    <input type="number" id="p-alert" value="5"
+                        class="w-full p-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-sm font-semibold mb-2">Product Photo</label>
+                    <div class="flex items-center gap-4">
+                        <div id="image-preview" class="w-24 h-24 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 overflow-hidden border border-slate-200">
+                            <i data-lucide="image" class="w-8 h-8"></i>
+                        </div>
+                        <div class="flex-1">
+                            <input type="file" id="p-image" accept="image/*" class="hidden">
+                            <button type="button" onclick="document.getElementById('p-image').click()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-bold transition-colors">
+                                Choose Photo
+                            </button>
+                            <p class="text-xs text-slate-400 mt-2">Recommended: Square image, max 500KB</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-span-2 pt-4 flex gap-4">
+                    <button type="button"
+                        class="close-modal flex-1 py-4 rounded-2xl font-bold bg-slate-100 text-slate-600">Cancel</button>
+                    <button type="submit"
+                        class="flex-1 btn-primary text-white py-4 rounded-2xl font-bold shadow-md">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Production Log Modal -->
+    <div id="production-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="modal-backdrop absolute inset-0"></div>
+        <div class="bg-white rounded-3xl w-full max-w-md relative z-10 shadow-2xl overflow-hidden p-8">
+            <h3 class="text-2xl font-bold mb-6">Record In-house Production</h3>
+            <form id="production-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Select Product</label>
+                    <select id="prod-select" required class="w-full p-3 rounded-xl border border-slate-200 bg-white">
+                        <!-- Products injected here -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Quantity Finished</label>
+                    <input type="number" id="prod-qty" required class="w-full p-3 rounded-xl border border-slate-200">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Cost Per Unit (Sewing/Material)</label>
+                    <input type="number" id="prod-cost" required step="0.01"
+                        class="w-full p-3 rounded-xl border border-slate-200">
+                </div>
+                <div class="pt-4 flex gap-4">
+                    <button type="button"
+                        class="close-modal flex-1 py-4 rounded-2xl font-bold bg-slate-100">Cancel</button>
+                    <button type="submit" class="flex-1 btn-primary text-white py-4 rounded-2xl font-bold shadow-md">Add
+                        to Stock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/db.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/inventory.js"></script>
+    <script>
+        lucide.createIcons();
+
+        // Mobile Sidebar Logic
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        document.getElementById('menu-toggle').onclick = () => {
+            sidebar.classList.add('open');
+            sidebar.classList.remove('hidden');
+            overlay.classList.add('active');
+        };
+        document.getElementById('close-sidebar').onclick = overlay.onclick = () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            setTimeout(() => sidebar.classList.add('hidden'), 300);
+        };
+    </script>
+</body>
+
+</html>

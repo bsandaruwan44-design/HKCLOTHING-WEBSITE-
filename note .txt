@@ -1,0 +1,6 @@
+Machan, mata thiyenawa New Born Baby Admum vikunana shop ekak wholesale wagema retail widiyata. Mama adum vikunanawa. Samahara adum mama mahanawa hbay samahara adum mama vendors lagen salli deela gannwa. Danata Gedara  idan thamay mama me business eka kranne .eth pothe liyanawata wda mama baluwe POS system ekk thibbanm hoday kiyala .mata loku technial hakiyawak ne eth bishan sir qwa, HTML, CSS, JS , TAILWIND wagema DEXIEJS wage deyak use karala full system ekk mata hada ganna puluwan kiyala .mata dn machan ona e full system eka hdaganna awashya business requirment eka saha technical requirment eka instruction.md file ekak vidiyata hadala copy karaganna puluwan vidiyata markdown cord block ekakata dala deepan eka isntruction ekkwath adu kranna epa machan 
+
+
+
+
+machan @instruction.md file eka hodata kiyawala mata supiri pos system ekk gahala deepanko ,HTML,SCC,JS,TAILWIND,DEXIEJS wage use karala ,CDN based witharak use karanna NODEJS use karanna epa machan

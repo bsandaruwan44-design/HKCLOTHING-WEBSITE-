@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HK CLOTHING - Settings</title>
+    <script>
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="bg-slate-50 min-h-screen text-slate-800">
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar"
+            class="w-64 glass-morphism border-r border-slate-200 hidden md:flex flex-col sidebar-mobile">
+            <div class="p-6 flex justify-between items-center">
+                <h1 class="text-xl font-bold gradient-text flex flex-col leading-tight">
+                    <span>HK CLOTHING</span>
+                    <span class="text-xs opacity-75 text-slate-500">DENIYAYA</span>
+                </h1>
+                <button class="md:hidden" id="close-sidebar"><i data-lucide="x"></i></button>
+            </div>
+
+            <nav class="flex-1 px-4 space-y-2 mt-4">
+                <a href="index.html"
+                    class="sidebar-link flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                    <span class="font-medium">POS Terminal</span>
+                </a>
+                <a href="inventory.html"
+                    class="sidebar-link flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100">
+                    <i data-lucide="box" class="w-5 h-5"></i>
+                    <span class="font-medium">Inventory</span>
+                </a>
+                <a href="reports.html"
+                    class="sidebar-link flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                    <span class="font-medium">Reports</span>
+                </a>
+                <a href="settings.html" class="sidebar-link active flex items-center gap-3 p-3 rounded-xl">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                    <span class="font-medium">Settings</span>
+                </a>
+            </nav>
+
+            <div id="user-controls" class="p-4 border-t border-slate-200 mt-auto">
+                <div class="flex items-center justify-between px-2">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
+                            AD
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold">Admin</p>
+                            <p class="text-xs text-slate-500">Offline</p>
+                        </div>
+                    </div>
+                    <button id="logout-btn" class="p-2 text-slate-400 hover:text-rose-500 transition-colors"
+                        title="Logout">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-6">
+            <header class="mb-8 flex items-center gap-4">
+                <button id="menu-toggle" class="md:hidden p-2 rounded-lg bg-white border border-slate-200">
+                    <i data-lucide="menu"></i>
+                </button>
+                <div>
+                    <h2 class="text-3xl font-black">System Settings</h2>
+                    <p class="text-slate-500">Configure your shop details and preferences</p>
+                </div>
+            </header>
+
+            <div class="max-w-2xl bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                <div class="p-8 space-y-6">
+                    <section class="space-y-4">
+                        <h3 class="text-lg font-bold border-b pb-2">Shop Information</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-sm font-semibold text-slate-500">Shop Name</label>
+                                <input type="text" id="set-shop-name"
+                                    class="w-full p-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-sm font-semibold text-slate-500">Phone Number</label>
+                                <input type="text" id="set-shop-phone"
+                                    class="w-full p-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            <div class="col-span-2 space-y-2">
+                                <label class="text-sm font-semibold text-slate-500">Address</label>
+                                <input type="text" id="set-shop-address"
+                                    class="w-full p-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-sm font-semibold text-slate-500">WhatsApp Number (with country code,
+                                    e.g. 9477...)</label>
+                                <input type="text" id="set-whatsapp"
+                                    class="w-full p-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-sm font-semibold text-slate-500">Currency Symbol</label>
+                                <input type="text" id="set-currency"
+                                    class="w-full p-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="space-y-4 pt-6">
+                        <h3 class="text-lg font-bold border-b pb-2">Data Management & Sync</h3>
+                        <p class="text-xs text-slate-500">Use these buttons to transfer data between your PC and Mobile.
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <button id="export-db"
+                                class="w-full p-4 rounded-2xl bg-indigo-50 border-2 border-indigo-100 text-indigo-600 font-bold flex items-center justify-center gap-2 hover:bg-indigo-100 transition-all">
+                                <i data-lucide="upload"></i> Export Data (Backup)
+                            </button>
+                            <div class="relative">
+                                <input type="file" id="import-db-file" class="hidden" accept=".json">
+                                <button id="import-db-btn"
+                                    class="w-full p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-100 text-emerald-600 font-bold flex items-center justify-center gap-2 hover:bg-emerald-100 transition-all">
+                                    <i data-lucide="download"></i> Import Data (Restore)
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="pt-6 flex justify-end">
+                        <button id="save-settings"
+                            class="px-8 py-4 btn-primary text-white rounded-2xl font-bold shadow-lg flex items-center gap-2">
+                            <i data-lucide="save" class="w-5 h-5"></i> Save Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="max-w-2xl mt-12 bg-rose-50 rounded-3xl border border-rose-100 p-8 space-y-4">
+                <h3 class="text-lg font-bold text-rose-600">Danger Zone</h3>
+                <p class="text-sm text-rose-500">Resetting the system will delete all sales, products, and logs. This
+                    cannot be undone.</p>
+                <button id="reset-db"
+                    class="px-6 py-3 bg-rose-600 text-white rounded-xl font-bold hover:bg-rose-700 transition-colors">
+                    Reset All Data
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/db.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/settings.js"></script>
+    <script>
+        lucide.createIcons();
+
+        // Mobile Sidebar Logic
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        document.getElementById('menu-toggle').onclick = () => {
+            sidebar.classList.add('open');
+            sidebar.classList.remove('hidden');
+            overlay.classList.add('active');
+        };
+        document.getElementById('close-sidebar').onclick = overlay.onclick = () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            setTimeout(() => sidebar.classList.add('hidden'), 300);
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HK CLOTHING - POS Terminal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Dexie JS CDN -->
+    <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="bg-slate-50 min-h-screen text-slate-800">
+
+    <!-- Mobile View Cart FAB -->
+    <button id="mobile-cart-toggle"
+        class="md:hidden fixed bottom-6 right-6 z-40 w-16 h-16 bg-indigo-600 text-white rounded-full shadow-2xl flex items-center justify-center animate-bounce">
+        <i data-lucide="shopping-cart" class="w-8 h-8"></i>
+        <span id="mobile-cart-badge"
+            class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-white hidden">0</span>
+    </button>
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar"
+            class="w-64 glass-morphism border-r border-slate-200 hidden md:flex flex-col sidebar-mobile">
+            <div class="p-6 flex justify-between items-center">
+                <h1 class="text-xl font-bold gradient-text flex flex-col leading-tight">
+                    <span>HK CLOTHING</span>
+                    <span class="text-xs opacity-75 text-slate-500">DENIYAYA</span>
+                </h1>
+                <button class="md:hidden" id="close-sidebar"><i data-lucide="x"></i></button>
+            </div>
+
+            <nav class="flex-1 px-4 space-y-2 mt-4">
+                <a href="index.html" class="sidebar-link active flex items-center gap-3 p-3 rounded-xl">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                    <span class="font-medium">POS Terminal</span>
+                </a>
+                <a href="inventory.html"
+                    class="admin-only sidebar-link flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100">
+                    <i data-lucide="box" class="w-5 h-5"></i>
+                    <span class="font-medium">Inventory</span>
+                </a>
+                <a href="reports.html"
+                    class="admin-only sidebar-link flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                    <span class="font-medium">Reports</span>
+                </a>
+                <a href="settings.html"
+                    class="admin-only sidebar-link flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                    <span class="font-medium">Settings</span>
+                </a>
+            </nav>
+
+            <div id="user-controls" class="p-4 border-t border-slate-200">
+                <div class="flex items-center justify-between px-2">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
+                            AD
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold">Admin</p>
+                            <p class="text-xs text-slate-500">Offline</p>
+                        </div>
+                    </div>
+                    <button id="logout-btn" class="p-2 text-slate-400 hover:text-rose-500 transition-colors"
+                        title="Logout">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
+
+            <!-- Product Section -->
+            <section class="flex-1 flex flex-col p-4 md:p-6 overflow-hidden">
+                <header class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <button id="menu-toggle" class="md:hidden p-2 rounded-lg bg-white border border-slate-200">
+                            <i data-lucide="menu"></i>
+                        </button>
+                        <div>
+                            <h2 class="text-2xl font-bold">New Sale</h2>
+                            <p class="text-slate-500 text-sm">Select products to add to cart</p>
+                        </div>
+                    </div>
+                    <div class="relative w-full md:w-96">
+                        <i data-lucide="search"
+                            class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                        <input type="text" id="product-search" placeholder="Search by name or SKU..."
+                            class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                    </div>
+                </header>
+
+                <!-- Filters -->
+                <div class="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
+                    <button
+                        class="category-btn active px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium transition-all"
+                        data-category="all">All Items</button>
+                    <button
+                        class="category-btn px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-all"
+                        data-category="Onesies">Onesies</button>
+                    <button
+                        class="category-btn px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-all"
+                        data-category="Frocks">Frocks</button>
+                    <button
+                        class="category-btn px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-all"
+                        data-category="Napkins">Napkins</button>
+                    <button
+                        class="category-btn px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-all"
+                        data-category="Baby Suits">Baby Suits</button>
+                    <button
+                        class="category-btn px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-all"
+                        data-category="Accessories">Accessories</button>
+                </div>
+
+                <!-- Product Grid -->
+                <div id="product-grid"
+                    class="flex-1 overflow-y-auto grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-10">
+                    <!-- Products will be injected here -->
+                </div>
+            </section>
+
+            <!-- Cart Section -->
+            <section id="cart-section"
+                class="w-full md:w-[400px] glass-morphism border-l border-slate-200 flex flex-col h-full bg-white/50">
+                <div class="p-6 border-b border-slate-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold flex items-center gap-2">
+                            <i data-lucide="shopping-bag" class="w-5 h-5 text-indigo-600"></i> Current Cart
+                        </h3>
+                        <div class="flex items-center gap-3">
+                            <button id="clear-cart" class="text-xs text-rose-500 font-semibold hover:underline">Clear
+                                All</button>
+                            <button id="close-mobile-cart" class="md:hidden p-1 rounded-lg bg-slate-100"><i
+                                    data-lucide="x" class="w-5 h-5"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Customer Type Toggle -->
+                    <div class="bg-slate-100 p-1 rounded-xl flex">
+                        <button id="btn-retail"
+                            class="flex-1 py-2 rounded-lg text-sm font-semibold transition-all bg-white shadow-sm text-indigo-600">Retail</button>
+                        <button id="btn-wholesale"
+                            class="flex-1 py-2 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:text-indigo-600">Wholesale</button>
+                    </div>
+                </div>
+
+                <!-- Cart Items -->
+                <div id="cart-list" class="flex-1 overflow-y-auto p-4 space-y-3">
+                    <!-- Cart items will be injected here -->
+                    <div class="text-center py-10 text-slate-400">
+                        <i data-lucide="package-open" class="w-12 h-12 mx-auto mb-2 opacity-20"></i>
+                        <p>Cart is empty</p>
+                    </div>
+                </div>
+
+                <!-- Checkout Summary -->
+                <div id="checkout-section-bottom" class="p-6 bg-white border-t border-slate-200 space-y-4">
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-500">Subtotal</span>
+                            <span id="summary-subtotal" class="font-medium">Rs. 0.00</span>
+                        </div>
+                        <div class="flex justify-between text-sm items-center">
+                            <span class="text-slate-500">Discount</span>
+                            <div class="flex items-center gap-2">
+                                <input type="number" id="discount-val" value="0"
+                                    class="w-16 border rounded px-1 text-right text-sm">
+                                <select id="discount-type" class="text-xs border rounded px-1 bg-slate-50">
+                                    <option value="fixed">Rs</option>
+                                    <option value="percent">%</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex justify-between text-xl font-bold pt-2 border-t border-slate-100">
+                            <span>Total</span>
+                            <span id="summary-total" class="text-indigo-600 font-black">Rs. 0.00</span>
+                        </div>
+                    </div>
+
+                    <button id="checkout-btn"
+                        class="w-full btn-primary text-white py-4 rounded-2xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
+                        disabled>
+                        Finalize Sale <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="checkout-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="modal-backdrop absolute inset-0"></div>
+        <div class="bg-white rounded-3xl w-full max-w-md relative z-10 shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="text-xl font-bold">Complete Sale</h3>
+                <button class="close-modal"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="text-center pb-4">
+                    <p class="text-slate-500 text-sm">Total Amount Due</p>
+                    <p id="modal-total-amt" class="text-4xl font-black text-indigo-600">Rs. 0.00</p>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="block text-sm font-semibold">Payment Method</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button
+                            class="payment-method-btn active p-4 border-2 border-indigo-500 rounded-2xl bg-indigo-50 flex flex-col items-center gap-2"
+                            data-method="Cash">
+                            <i data-lucide="banknote" class="w-6 h-6 text-indigo-600"></i>
+                            <span class="text-sm font-bold">Cash</span>
+                        </button>
+                        <button
+                            class="payment-method-btn p-4 border-2 border-slate-100 rounded-2xl hover:border-indigo-200 flex flex-col items-center gap-2"
+                            data-method="Card">
+                            <i data-lucide="credit-card" class="w-6 h-6 text-slate-500"></i>
+                            <span class="text-sm font-bold">Card</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-4 pt-2">
+                    <div class="flex items-center justify-between">
+                        <label class="text-sm font-semibold">Customer Phone (WhatsApp)</label>
+                        <span class="text-[10px] text-slate-400">Optional</span>
+                    </div>
+                    <input type="text" id="cust-phone-whatsapp" placeholder="947..."
+                        class="w-full p-3 rounded-xl border border-slate-200 bg-slate-50">
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold">Amount Received</label>
+                    <input type="number" id="cash-received" placeholder="Enter amount..."
+                        class="w-full p-4 rounded-xl border border-slate-200 text-2xl font-bold">
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center">
+                    <span class="text-slate-500 font-medium">Balance</span>
+                    <span id="balance-amount" class="text-xl font-black text-rose-500">Rs. 0.00</span>
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 flex flex-col gap-3">
+                <button id="confirm-sale-btn"
+                    class="w-full btn-primary text-white py-4 rounded-2xl font-bold shadow-md flex items-center justify-center gap-2">
+                    <i data-lucide="printer" class="w-5 h-5"></i> Print & Confirm
+                </button>
+                <button id="whatsapp-share-btn"
+                    class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-2xl font-bold shadow-md flex items-center justify-center gap-2">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i> Send via WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Hidden Receipt Print Area -->
+    <div id="receipt-print">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h2 id="receipt-shop-name">BABY POS STORE</h2>
+            <p>Newborn Baby Wear Specialist</p>
+            <p id="receipt-address">Thennahena Diyadawa Deniyaya</p>
+            <p id="receipt-phone">0727244022</p>
+            <hr style="border-top: 1px dashed #000; margin: 10px 0;">
+        </div>
+        <div id="receipt-items"></div>
+        <hr style="border-top: 1px dashed #000; margin: 10px 0;">
+        <div style="text-align: right;">
+            <p>Subtotal: <span id="receipt-subtotal"></span></p>
+            <p>Discount: <span id="receipt-discount"></span></p>
+            <h3 style="font-weight: bold;">TOTAL: <span id="receipt-total"></span></h3>
+        </div>
+        <hr style="border-top: 1px dashed #000; margin: 10px 0;">
+        <p style="text-align: center;">Thank you for shopping!</p>
+        <p id="receipt-date" style="text-align: center; font-size: 10px;"></p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/db.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/pos.js"></script>
+    <script>
+        // Init Lucide Icons
+        lucide.createIcons();
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+
+</html>
